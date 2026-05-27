@@ -12,7 +12,6 @@ body{
 
 canvas{
   display:block;
-  margin:auto;
   background:#5aa35a;
 }
 </style>
@@ -83,6 +82,10 @@ function update(){
     me.coins = 0;
   }
 
+  if(me.wood === undefined){
+    me.wood = 0;
+  }
+
   const speed = 5;
 
   if(keys["w"]) me.y -= speed;
@@ -93,14 +96,40 @@ function update(){
   me.x = Math.max(0, Math.min(WORLD_WIDTH, me.x));
   me.y = Math.max(0, Math.min(WORLD_HEIGHT, me.y));
 
+  // collect wood
+  if(keys["e"]){
+
+    for(let tree of trees){
+
+      const dx = me.x - tree.x;
+      const dy = me.y - tree.y;
+
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      if(dist < 60){
+
+        me.wood++;
+
+        tree.x = Math.random()*WORLD_WIDTH;
+        tree.y = Math.random()*WORLD_HEIGHT;
+
+        break;
+      }
+    }
+  }
+
+  // collect coins
   for(let coin of coins){
 
     const dx = me.x - coin.x;
     const dy = me.y - coin.y;
+
     const dist = Math.sqrt(dx*dx + dy*dy);
 
     if(dist < 30){
+
       me.coins++;
+
       coin.x = Math.random()*WORLD_WIDTH;
       coin.y = Math.random()*WORLD_HEIGHT;
     }
@@ -145,6 +174,7 @@ function draw(){
 
   // coins
   for(let coin of coins){
+
     ctx.fillStyle = "gold";
 
     ctx.beginPath();
@@ -177,13 +207,26 @@ function draw(){
     ctx.fillRect(px-8, py-24, 16, 12);
   }
 
-  // UI
+  // inventory UI
   ctx.fillStyle = "white";
   ctx.font = "22px Arial";
+
   ctx.fillText(
-    "Coins: " + me.coins,
+    "🪙 Coins: " + me.coins,
     20,
     40
+  );
+
+  ctx.fillText(
+    "🪵 Wood: " + me.wood,
+    20,
+    75
+  );
+
+  ctx.fillText(
+    "Press E near trees",
+    20,
+    110
   );
 }
 
